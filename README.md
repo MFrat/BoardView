@@ -1,21 +1,7 @@
 # BoardView
 Chess/Checkers board for Android.
 
-# Samples
-### Simple movement in a checkers game.
-<p align="start">
-  <img src="http://i.imgur.com/TsJcZCg.gif" width="300"/>
-</p>
-
-### Valid positions and click on a invalid position in a chess game.
-```xml
-app:tileMarkingEnabled="true"
-app:tileMarkingAnimation="IterativeFading"
-app:invalidPosClickColor="@android:color/holo_red_dark"
-```
-<p align="start">
-  <img src="http://i.imgur.com/OHMpQPF.gif" width="300"/>
-</p>
+IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 
 # QuickStart
 ``` xml
@@ -80,3 +66,19 @@ boardView.setBoardListener(new BoardView.BoardListener() {
     }
 });
 ```
+
+# Samples
+### Simple movement in a checkers game.
+<p align="start">
+  <img src="http://i.imgur.com/TsJcZCg.gif" width="300"/>
+</p>
+
+### Valid positions and click on a invalid position in a chess game.
+```xml
+app:tileMarkingEnabled="true"
+app:tileMarkingAnimation="IterativeFading"
+app:invalidPosClickColor="@android:color/holo_red_dark"
+```
+<p align="start">
+  <img src="http://i.imgur.com/OHMpQPF.gif" width="300"/>
+</p>
