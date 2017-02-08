@@ -2,17 +2,19 @@
 Chess/Checkers board for Android.
 
 # Samples
-### Simple movement
+### Simple movement in a checkers game.
 <p align="start">
   <img src="http://i.imgur.com/TsJcZCg.gif" width="300"/>
 </p>
 
-### Valid positions in a chess game.
+### Valid positions and click on a invalid position in a chess game.
 ```xml
 app:tileMarkingEnabled="true"
+app:tileMarkingAnimation="IterativeFading"
+app:invalidPosClickColor="@android:color/holo_red_dark"
 ```
 <p align="start">
-  <img src="http://i.imgur.com/E7OXhWm.gif" width="300"/>
+  <img src="http://i.imgur.com/OHMpQPF.gif" width="300"/>
 </p>
 
 # QuickStart
@@ -29,6 +31,8 @@ app:tileMarkingEnabled="true"
         app:invalidPosClickColor="@android:color/holo_red_dark"
         app:tileMarkingAnimation="IterativeFading"/>
 ```
+`app:tileMarkingEnabled="true"` With this enabled, `public void onClickTile` will only be called when a click is perfomed in a marked tile. This is very useful to pre-handle invalid positions.
+
 
 
 ``` java
