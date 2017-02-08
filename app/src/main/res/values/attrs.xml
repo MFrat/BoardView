@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="BoardView">
+        <attr name="clickAnabled" format="boolean" />
+        <attr name="tileMarkingEnabled" format="boolean"/>
+        <attr name="darkTileImage" format="reference"/>
+        <attr name="lightTileImage" format="reference"/>
+        <attr name="markedTileColor" format="color"/>
+        <attr name="tileMarkingAnimation" format="enum">
+            <enum name="SimpleFading" value="0"/>
+            <enum name="IterativeFading" value="1"/>
+        </attr>
+        <attr name="invalidPosClickColor" format="color"/>
+    </declare-styleable>
+
+</resources>
