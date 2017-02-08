@@ -2,9 +2,17 @@
 Chess/Checkers board for Android.
 
 # Samples
-### Movement
+### Simple movement
 <p align="start">
   <img src="http://i.imgur.com/TsJcZCg.gif" width="300"/>
+</p>
+
+### Valid positions in a chess game.
+```xml
+app:tileMarkingEnabled="true"
+```
+<p align="start">
+  <img src="http://i.imgur.com/E7OXhWm.gif" width="300"/>
 </p>
 
 # QuickStart
@@ -12,11 +20,14 @@ Chess/Checkers board for Android.
     <com.mfratane.boardview.BoardView
         android:id="@+id/checkers_board"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:clickAnabled="true"
-        app:tileMarkingEnabled="false"
-        app:darkTileImage="@drawable/my_light_tile"
-        app:lightTileImage="@drawable/my_dark_tile"/>
+        app:tileMarkingEnabled="true"
+        app:darkTileImage="@drawable/casa"
+        app:lightTileImage="@drawable/base_g"
+        app:markedTileColor="@android:color/holo_blue_light"
+        app:invalidPosClickColor="@android:color/holo_red_dark"
+        app:tileMarkingAnimation="IterativeFading"/>
 ```
 
 
