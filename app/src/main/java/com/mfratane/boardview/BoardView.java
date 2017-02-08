@@ -5,61 +5,49 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * View personalizada que representa um tabuleiro de jogo de damas.
- * IMPORTANTE
- * Essa classe não sabe nada de regras. Ela somente move e desenha, peças e tabuleiro.
- */
 public class BoardView extends GridLayout {
-    /**
-     *
-     */
     private View[][] piecesMatrix;
 
     /**
      * Tile background.
      */
-    private int lightTile = R.drawable.casa_transparente;
-    private int darkTile = R.drawable.casa;
+    private Drawable lightTile;
+    private Drawable darkTile;
+    private int markedTileColor;
+    private int invalidPosClickColor;
 
-    /**
-     * Players images.
-     */
-    private int playerOnePiece = R.drawable.pt_peao_2;
-    private int playerTwoPiece = R.drawable.psdb_peao;
-    private int playerOneKing = R.drawable.pt_dama_2;
-    private int playerTwoKing = R.drawable.psdb_dama;
 
-    /**
-     * Player's static constants.
-     */
-    public static final int PLAYER_ONE = 1;
-    public static final int PLAYER_TWO = 2;
-    public static final boolean KING = true;
-    public static final boolean PIECE = false;
-
-    /**
-     * Variáveis que auxiliam no controle da movimentação das peças nas peças.
-     */
     private View lastSelectedPiece;
 
     /**
      * Markedtiles for the last selected piece.
      */
     private List<View> markedTiles;
-    private boolean markedTilesEnabled = false;
+    private boolean markedTilesEnabled;
+
+    /**
+     * Marking tile animation.
+     */
+    private int anim;
 
     /**
      * Board dimension.
@@ -95,14 +83,19 @@ public class BoardView extends GridLayout {
         super(context, attrs);
         piecesMatrix = new View[BOARD_DIMENSION][BOARD_DIMENSION];
         markedTiles = new ArrayList<>();
-        createBoard();
 
+        initVar(context, attrs);
+
+        createBoard();
     }
 
     public BoardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         piecesMatrix = new View[BOARD_DIMENSION][BOARD_DIMENSION];
         markedTiles = new ArrayList<>();
+
+        initVar(context, attrs);
+
         createBoard();
     }
 
@@ -112,6 +105,9 @@ public class BoardView extends GridLayout {
         super(context, attrs, defStyleAttr, defStyleRes);
         piecesMatrix = new View[BOARD_DIMENSION][BOARD_DIMENSION];
         markedTiles = new ArrayList<>();
+
+        initVar(context, attrs);
+
         createBoard();
     }
 
@@ -125,42 +121,33 @@ public class BoardView extends GridLayout {
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY));
     }
 
-    public void setCasaTransparente(int casa_transparente) {
-        this.lightTile = casa_transparente;
-    }
+    private void initVar(Context context, AttributeSet attrs){
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.BoardView,
+                0, 0);
 
-    public void setDarkTile(int darkTile) {
-        this.darkTile = darkTile;
-    }
-
-    public void setPlayerOnePiece(int playerOnePiece) {
-        this.playerOnePiece = playerOnePiece;
-    }
-
-    public void setPlayerTwoPiece(int playerTwoPiece) {
-        this.playerTwoPiece = playerTwoPiece;
-    }
-
-    public void setPlayerOneKing(int playerOneKing) {
-        this.playerOneKing = playerOneKing;
-    }
-
-    public void setPlayerTwoKing(int playerTwoKing) {
-        this.playerTwoKing = playerTwoKing;
+        try {
+            markedTilesEnabled = a.getBoolean(R.styleable.BoardView_tileMarkingEnabled, false);
+            clickEnabled = a.getBoolean(R.styleable.BoardView_clickAnabled, true);
+            darkTile = a.getDrawable(R.styleable.BoardView_darkTileImage);
+            lightTile = a.getDrawable(R.styleable.BoardView_lightTileImage);
+            markedTileColor = a.getColor(R.styleable.BoardView_markedTileColor, Color.CYAN);
+            anim = a.getInt(R.styleable.BoardView_tileMarkingAnimation, 0);
+            invalidPosClickColor = a.getColor(R.styleable.BoardView_invalidPosClickColor, Color.RED);
+        } finally {
+            a.recycle();
+        }
     }
 
     protected int larguraTabuleiro() {
         return getDisplay((Activity) getContext()).widthPixels;
     }
 
-    public static DisplayMetrics getDisplay(Activity activity){
+    private DisplayMetrics getDisplay(Activity activity){
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         return metrics;
-    }
-
-    public void setLastSelectedPiece(Pos pos) {
-        this.lastSelectedPiece = piecesMatrix[pos.getI()][pos.getJ()];
     }
 
     public void enableMarkedTiles(boolean bool){
@@ -176,7 +163,6 @@ public class BoardView extends GridLayout {
     }
 
     private void createBoard(){
-        this.setBackgroundResource(R.drawable.base_g);
         this.setRowCount(BOARD_DIMENSION);
         this.setColumnCount(BOARD_DIMENSION);
 
@@ -205,7 +191,7 @@ public class BoardView extends GridLayout {
         //Para cada coordenada do tabuleiro, cria uma view.
         for(int i = 0; i < BOARD_DIMENSION; i++){
             for(int j = 0; j < BOARD_DIMENSION; j++){
-                View tile = createTile(chooseTileColor(i, j), larguraCasa());
+                View tile = createTile(chooseTileColor(i, j));
                 addViewToGrid(tile, i, j);
             }
         }
@@ -215,11 +201,9 @@ public class BoardView extends GridLayout {
      * Create a piece and set it on te given position.
      * @param i position coord i.
      * @param j position coord j.
-     * @param player wich team this piece will be.
-     * @param isKing if it is king or not.
      */
-    public void setPiece(int i, int j, int player, boolean isKing){
-        View peca = createPiece(player, isKing);
+    public void setPiece(int i, int j, int imageid){
+        View peca = createPiece(imageid);
 
         if(!isPosValid(i, j)){
             throw new IllegalArgumentException("Invalid position: [" + String.valueOf(i) + ";" + String.valueOf(j) + "].");
@@ -236,7 +220,7 @@ public class BoardView extends GridLayout {
      * @param j tile coord j.
      * @return image id.
      */
-    private int chooseTileColor(int i, int j){
+    private Drawable chooseTileColor(int i, int j){
         if(i%2 == 0){
             if(j%2 == 0) {
                 return lightTile;
@@ -260,8 +244,8 @@ public class BoardView extends GridLayout {
     private Pos getTilePos(View tile){
         int index = this.indexOfChild(tile);
 
-        int linha = index / 8;
-        int coluna = index % 8;
+        int linha = index / BOARD_DIMENSION;
+        int coluna = index % BOARD_DIMENSION;
 
         return new Pos(linha, coluna);
     }
@@ -272,8 +256,8 @@ public class BoardView extends GridLayout {
      * @return Pos instance.
      */
     private Pos getPiecePos(View piece){
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++){
+        for(int i = 0; i < BOARD_DIMENSION; i++){
+            for(int j = 0; j < BOARD_DIMENSION; j++){
                 View aux = piecesMatrix[i][j];
                 if(aux != null){
                     if(aux.equals(piece)){
@@ -301,20 +285,111 @@ public class BoardView extends GridLayout {
         this.addView(view, gridParam);
     }
 
-    public void markTile(int i, int j){
-        int pos = (i * 8) + j;
+    private Animation iterativeFadeInAnim(int duration, int offset){
+        Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
+        fadeIn.setDuration(duration);
+        fadeIn.setStartOffset(offset);
+
+        return fadeIn;
+    }
+
+    private Animation simpleFadeIn(int duration){
+        Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
+        fadeIn.setDuration(duration);
+
+        return fadeIn;
+    }
+
+    private void fadeViewOut(View view){
+        FrameLayout frameLayout = (FrameLayout) view;
+        final View image = frameLayout.getChildAt(1);
+
+        Animation animation = simpleFadeIn(100);
+
+
+        image.setBackgroundColor(invalidPosClickColor);
+        image.setVisibility(VISIBLE);
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                image.setVisibility(GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        image.startAnimation(animation);
+    }
+
+    public void invalidPosAnim(int i, int j){
+        View view = getTile(new Pos(i, j));
+        FrameLayout frameLayout = (FrameLayout) view;
+        final View image = frameLayout.getChildAt(1);
+
+        Animation animation = simpleFadeIn(100);
+
+
+        image.setBackgroundColor(invalidPosClickColor);
+        image.setVisibility(VISIBLE);
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                image.setVisibility(GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        image.startAnimation(animation);
+    }
+
+    private Animation selectAnimation(int duration, int offset){
+        switch (anim){
+            case 0:
+                return simpleFadeIn(duration);
+        }
+
+        return iterativeFadeInAnim(duration, offset);
+    }
+
+    public void markTile(int i, int j, int offset){
+        int pos = (i * BOARD_DIMENSION) + j;
         FrameLayout view = (FrameLayout) this.getChildAt(pos);
-        ImageView image = (ImageView) view.getChildAt(0);
-        image.setImageResource(R.drawable.markedTile);
+        View image = view.getChildAt(1);
+        image.setBackgroundColor(markedTileColor);
+        Animation animation = selectAnimation(350, offset);
+        image.setVisibility(VISIBLE);
+
+        image.startAnimation(animation);
 
         markedTiles.add(view);
     }
 
     public void unmarkTile(int i, int j){
-        int pos = (i * 8) + j;
+        int pos = (i * BOARD_DIMENSION) + j;
         FrameLayout view = (FrameLayout) this.getChildAt(pos);
-        ImageView image = (ImageView) view.getChildAt(0);
-        image.setImageResource(chooseTileColor(i, j));
+        View image =  view.getChildAt(1);
+        image.setVisibility(GONE);
     }
 
     public void unmarkAllTiles(){
@@ -327,54 +402,56 @@ public class BoardView extends GridLayout {
     }
 
 
-    private FrameLayout createTile(int imageId, int largura){
-        FrameLayout tile = new FrameLayout(getContext());
-        ImageView imageView = new ImageView(getContext());
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(largura, largura);
-
-        tile.setLayoutParams(params);
-        imageView.setLayoutParams(params);
-
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setImageResource(imageId);
-        imageView.setAlpha((float) 0.8);
-        tile.addView(imageView);
-
-        tile.setOnClickListener(onClickTile());
-
-        return tile;
-    }
-
-
-    private FrameLayout createPiece(int time, boolean dama){
-        int imageId = 0;
-        if(time == 1){
-            imageId = (dama)? playerOneKing : playerOnePiece;
-        }
-
-        if(time == 2){
-            imageId = (dama)? playerTwoKing : playerTwoPiece;
-        }
-
+    private FrameLayout createTile(Drawable imageId){
         int tamanho = larguraCasa();
 
         FrameLayout frameLayout = new FrameLayout(getContext());
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(tamanho, tamanho, Gravity.CENTER);
-        //params.setMargins(10, 10, 10, 10);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(tamanho, tamanho);
 
         ImageView piece = new ImageView(getContext());
         piece.setLayoutParams(params);
+        piece.setBackground(imageId);
+        piece.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        FrameLayout marked = new FrameLayout(getContext());
+        marked.setLayoutParams(params);
+        marked.setBackgroundColor(markedTileColor);
+        marked.setAlpha((float) 0.5);
+        marked.setVisibility(GONE);
+
+        frameLayout.setOnClickListener(onClickTile());
+
+        frameLayout.addView(piece);
+        frameLayout.addView(marked);
+
+        return frameLayout;
+    }
+
+
+    private LinearLayout createPiece(int imageId){
+        int tamanho = larguraCasa();
+
+        LinearLayout frameLayout = new LinearLayout(getContext());
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(tamanho, tamanho, Gravity.CENTER);
+
+        ImageView piece = new ImageView(getContext());
+        int padding = (int) pxFromDp(getContext(), 5);
+        piece.setPadding(padding, padding, padding, padding);
+        piece.setLayoutParams(params);
         piece.setImageResource(imageId);
         piece.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        piece.setAlpha((float) 0.85);
 
         frameLayout.setOnClickListener(onClickPiece());
 
         frameLayout.addView(piece);
 
         return frameLayout;
+    }
+
+    private float pxFromDp(final Context context, final float dp) {
+        return dp * context.getResources().getDisplayMetrics().density;
     }
 
     private View getPiece(Pos pos){
@@ -416,6 +493,7 @@ public class BoardView extends GridLayout {
                 }
 
                 if(markedTilesEnabled && markedTiles.indexOf(v) == -1){
+                    fadeViewOut(v);
                     return;
                 }
 
@@ -436,18 +514,9 @@ public class BoardView extends GridLayout {
         piecesMatrix[endPos.getI()][endPos.getJ()] = piecesMatrix[startPos.getI()][startPos.getJ()];
         piecesMatrix[startPos.getI()][startPos.getJ()] = null;
 
-        View casa = getChildAt((endPos.getI()*8) + endPos.getJ());
+        View casa = getChildAt((endPos.getI()*BOARD_DIMENSION) + endPos.getJ());
 
         pieceMovAnim(view, casa);
-    }
-
-    public void setKing(Pos pos, int time){
-        FrameLayout view = (FrameLayout) piecesMatrix[pos.getI()][pos.getJ()];
-        final ImageView imageView = (ImageView) view.getChildAt(0);
-
-        final int img = (time == PLAYER_ONE)? playerOneKing : playerTwoKing;
-
-        imageView.setImageResource(img);
     }
 
     private void pieceMovAnim(View piece, View tile){
@@ -460,6 +529,45 @@ public class BoardView extends GridLayout {
         animatorSet.playTogether(animX, animY);
         animatorSet.setDuration(duracaoAnimMovimento);
         animatorSet.start();
+    }
+
+    public void markTiles(List<Pos> positions){
+        List<Pos> ordered = orderPos(positions);
+
+        int offset = 0;
+
+        for(Pos pos : ordered){
+            markTile(pos.getI(), pos.getJ(), offset);
+            offset += 50;
+        }
+    }
+
+    private List<Pos> orderPos(List<Pos> positions){
+        for(int i = 0; i < positions.size(); i++){
+            for(int j = i; j < positions.size(); j++){
+                if(biggerThan(getPiecePos(lastSelectedPiece), positions.get(i), positions.get(j))){
+                    Pos aux = positions.get(i);
+                    positions.set(i, positions.get(j));
+                    positions.set(j, aux);
+                }
+            }
+        }
+
+        return positions;
+    }
+
+    private boolean biggerThan(Pos posBase, Pos pos1, Pos pos2){
+        int distance1 = distance(posBase, pos1);
+        int distance2 = distance(posBase, pos2);
+
+        return distance1 >= distance2;
+    }
+
+    private int distance(Pos pos1, Pos pos2){
+        double delta1 = Math.pow((pos1.getI() - pos2.getI()), 2);
+        double delta2 = Math.pow((pos1.getJ() - pos2.getJ()), 2);
+
+        return (int) Math.sqrt(delta1 + delta2);
     }
 
     private boolean isPosValid(int i, int j){
@@ -512,6 +620,10 @@ public class BoardView extends GridLayout {
 
         public void setJ(int j) {
             this.j = j;
+        }
+
+        public boolean equals(Pos pos){
+            return pos.getI() == this.getI() && pos.getJ() == this.getJ();
         }
 
         @Override
