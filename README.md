@@ -4,18 +4,10 @@ Chess/Checkers board for Android.
 IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 
 # Samples
-## Simple movement in a checkers game.
 <p align="start">
-  <img src="http://i.imgur.com/TsJcZCg.gif" width="300"/>
+  <img src="http://i.imgur.com/LvUCd3w.gif" width="300"/>
   <img src="http://i.imgur.com/OHMpQPF.gif" width="300"/>
 </p>
-
-## Valid positions and click on a invalid position in a chess game.
-```xml
-app:tileMarkingEnabled="true"
-app:tileMarkingAnimation="IterativeFading"
-app:invalidPosClickColor="@android:color/holo_red_dark"
-```
 
 # QuickStart
 ``` xml
@@ -66,7 +58,11 @@ boardView.setBoardListener(new BoardView.BoardListener() {
         otherwise this movement can be invalid for your rules, so you have to verify in your ruuning chess/chekers
         rule if this movement is valid
          */
-
+         
+         
+        /*
+        if tileMarkingEnabled == false
+        */
         try{
             //Move on your rule.
             myChessRule.move(posPiece.getI(), posPiece.getJ(), posTile.getI(), posTile.getJ());
@@ -77,6 +73,14 @@ boardView.setBoardListener(new BoardView.BoardListener() {
             //Warn user.
             //Invalid movement, do nothing.
         }
+        
+        /*
+        if tileMarkingEnabled == true
+        */
+        boardView.movePiece(posPiece, posTile);
     }
 });
 ```
+
+## Developed by
+### Max Fratane
