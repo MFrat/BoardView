@@ -1,6 +1,16 @@
 # BoardView
-Chess/Checkers board for Android.
+1. [Samples](#samples)
+2. [QuickStart](#quickstart)
+3. [Attributes](#attributes)
+    1. [TileMarkingEnabled](#tileMarkingEnabled)
+    2. [TileMarkingAnimation](#tileMarkingAnimation)
+    3. [InvalidPosClickColor](#invalidPosClickColor)
+    4. [MarkedTileColor](#markedTileColor)
+    5. [LightTileImage](#lightTileImage)
+    6. [DarkTileImage](#darkTileImage)
+    7. [ClickAnabled](#clickAnabled)
 
+Chess/Checkers board for Android.
 IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 
 # Samples
