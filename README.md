@@ -1,12 +1,38 @@
 # BoardView
-Chess/Checkers board for Android.
+1. [Samples](#samples)
+2. [Features](#features)
+    1. [Path Animation](#path_animation)
+2. [QuickStart](#quickstart)
+3. [Attributes](#attributes)
+    1. [TileMarkingEnabled](#tileMarkingEnabled)
+    2. [TileMarkingAnimation](#tileMarkingAnimation)
+    3. [InvalidPosClickColor](#invalidPosClickColor)
+    4. [MarkedTileColor](#markedTileColor)
+    5. [LightTileImage](#lightTileImage)
+    6. [DarkTileImage](#darkTileImage)
+    7. [ClickAnabled](#clickAnabled)
 
+Chess/Checkers board for Android.
 IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 
 # Samples
 <p align="start">
-  <img src="http://i.imgur.com/LvUCd3w.gif" width="300"/>
-  <img src="http://i.imgur.com/OHMpQPF.gif" width="300"/>
+  <img src="https://i.imgur.com/WofK8k7.gif" width="200"/>
+  <img src="https://i.imgur.com/6MTCDtG.gif" width="200"/>
+</p>
+
+# Features
+### Path Animation
+Path animation is a feature that allows you to set some positions for the piece animation.
+
+``` java
+boardView.movePiece(posList);
+```
+
+Where `posList` is a instance of `List<BoardView.Pos>`.
+
+<p align="start">
+  <img src="https://i.imgur.com/w9lIbNs.gif" width="200"/>
 </p>
 
 # QuickStart
@@ -81,6 +107,28 @@ boardView.setBoardListener(new BoardView.BoardListener() {
     }
 });
 ```
+
+# Attributes
+#### TileMarkingEnabled
+It handles click events in invalid positions. If you are marking valid positions for the next move and if `tileMarkingEnabled` is true, then `onClickTile` won't be called if the click was on a unmarked position.
+
+#### TileMarkingAnimation
+The animation that will occur in tile marking. There is two animations available:
+
+#### InvalidPosClickColor
+Color that will be displayed over a tile when a click on a invalid(unmarked) pos occurs.
+
+#### MarkedTileColor
+Color that will be displayed over a tile when it is marked.
+
+#### LightTileImage
+Image displayed as a light tile.
+
+#### DarkTileImage
+Image displayed as a dark tile.
+
+#### ClickAnabled
+If it is `true` disables all clicks on the board.
 
 ## Developed by
 ### Max Fratane
