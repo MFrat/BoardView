@@ -17,6 +17,7 @@ IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 <p align="start">
   <img src="https://i.imgur.com/WofK8k7.gif" width="300"/>
   <img src="https://i.imgur.com/6MTCDtG.gif" width="300"/>
+  <img src="https://i.imgur.com/w9lIbNs.gif" width="300"/>
 </p>
 
 # QuickStart
