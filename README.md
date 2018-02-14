@@ -129,6 +129,3 @@ Image displayed as a dark tile.
 
 #### ClickAnabled
 If it is `true` disables all clicks on the board.
-
-## Developed by
-### Max Fratane
