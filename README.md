@@ -1,14 +1,14 @@
 # BoardView
-1. [Samples](#samples)
-2. [QuickStart](#quickstart)
-3. [Attributes](#attributes)
-    1. [TileMarkingEnabled](#tileMarkingEnabled)
-    2. [TileMarkingAnimation](#tileMarkingAnimation)
-    3. [InvalidPosClickColor](#invalidPosClickColor)
-    4. [MarkedTileColor](#markedTileColor)
-    5. [LightTileImage](#lightTileImage)
-    6. [DarkTileImage](#darkTileImage)
-    7. [ClickAnabled](#clickAnabled)
+1.[Samples](#samples)
+2.[QuickStart](#quickstart)
+3.[Attributes](#attributes)
+    1.[TileMarkingEnabled](#tileMarkingEnabled)
+    2.[TileMarkingAnimation](#tileMarkingAnimation)
+    3.[InvalidPosClickColor](#invalidPosClickColor)
+    4.[MarkedTileColor](#markedTileColor)
+    5.[LightTileImage](#lightTileImage)
+    6.[DarkTileImage](#darkTileImage)
+    7.[ClickAnabled](#clickAnabled)
 
 Chess/Checkers board for Android.
 IMPORTANT! This is just a interface, there is no checkers/chess rules running.
@@ -91,6 +91,28 @@ boardView.setBoardListener(new BoardView.BoardListener() {
     }
 });
 ```
+
+# Attributes
+#### TileMarkingEnabled
+It handles click events in invalid positions. If you are marking valid positions for the next move and if `tileMarkingEnabled` is true, then `onClickTile` won't be called if the click was on a unmarked position.
+
+#### TileMarkingAnimation
+The animation that will occur in tile marking. There is two animations available:
+
+#### InvalidPosClickColor
+Color that will be displayed over a tile when a click on a invalid(unmarked) pos occurs.
+
+#### MarkedTileColor
+Color that will be displayed over a tile when it is marked.
+
+#### LightTileImage
+Image displayed as a light tile.
+
+#### DarkTileImage
+Image displayed as a dark tile.
+
+#### ClickAnabled
+If it is `true` disables all clicks on the board.
 
 ## Developed by
 ### Max Fratane
