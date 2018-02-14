@@ -15,7 +15,7 @@ IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 
 # Samples
 <p align="start">
-  <img src="http://i.imgur.com/LvUCd3w.gif" width="300"/>
+  <img src="https://i.imgur.com/WofK8k7.gif" width="300"/>
   <img src="https://i.imgur.com/6MTCDtG.gif" width="300"/>
 </p>
 
