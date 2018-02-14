@@ -1,5 +1,7 @@
 # BoardView
 1. [Samples](#samples)
+2. [Features](#features)
+    1. [Path Animation](#path_animation)
 2. [QuickStart](#quickstart)
 3. [Attributes](#attributes)
     1. [TileMarkingEnabled](#tileMarkingEnabled)
@@ -17,6 +19,19 @@ IMPORTANT! This is just a interface, there is no checkers/chess rules running.
 <p align="start">
   <img src="https://i.imgur.com/WofK8k7.gif" width="200"/>
   <img src="https://i.imgur.com/6MTCDtG.gif" width="200"/>
+</p>
+
+# Features
+### Path Animation
+Path animation is a feature that allows you to set some positions for the piece animation.
+
+``` java
+boardView.movePiece(posList);
+```
+
+Where `posList` is a instance of `List<BoardView.Pos>`.
+
+<p align="start">
   <img src="https://i.imgur.com/w9lIbNs.gif" width="200"/>
 </p>
 
