@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BoardView.iml" filepath="$PROJECT_DIR$/BoardView.iml" />
+      <module fileurl="file://C:\Users\Max_F\Documents\GitRepos\BoardView\BoardView.iml" filepath="C:\Users\Max_F\Documents\GitRepos\BoardView\BoardView.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Max_F\Documents\GitRepos\BoardView\app\app.iml" filepath="C:\Users\Max_F\Documents\GitRepos\BoardView\app\app.iml" />
     </modules>
   </component>
 </project>

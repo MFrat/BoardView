@@ -3,19 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:layout_gravity="center"
     tools:context="com.mfratane.boardview.MainActivity">
 
     <com.mfratane.boardview.BoardView
         android:id="@+id/checkers_board"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:clickAnabled="true"
+        android:layout_gravity="center"
         app:tileMarkingEnabled="true"
         app:darkTileImage="@drawable/casa"
         app:lightTileImage="@drawable/base_g"
         app:markedTileColor="@android:color/holo_blue_light"
         app:invalidPosClickColor="@android:color/holo_red_dark"
-        app:tileMarkingAnimation="IterativeFading"/>
+        app:tileMarkingAnimation="SimpleFading"/>
 </FrameLayout>

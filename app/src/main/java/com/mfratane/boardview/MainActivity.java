@@ -19,9 +19,25 @@ public class MainActivity extends AppCompatActivity {
         boardView.setPiece(0, 6, R.drawable.peao);
         boardView.setPiece(6, 2, R.drawable.horse);
 
+//        boardView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                List<BoardView.Pos> posList = new ArrayList<>();
+//                posList.add(new BoardView.Pos(6, 2));
+//                posList.add(new BoardView.Pos(5, 2));
+//                posList.add(new BoardView.Pos(4, 2));
+//                posList.add(new BoardView.Pos(4, 1));
+//
+//                boardView.movePiece(posList);
+//            }
+//        }, 5000);
+
         boardView.setBoardListener(new BoardView.BoardListener() {
             @Override
-            public void onClickPiece(BoardView.Pos pos) {
+            public void onClickPiece(BoardView.Pos pos, boolean isSameLast) {
+                if (isSameLast){
+                    return;
+                }
                 List<BoardView.Pos> positions = getPos(pos);
                 boardView.markTiles(positions);
 
@@ -29,7 +45,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClickTile(BoardView.Pos posPiece, BoardView.Pos posTile) {
-                boardView.movePiece(posPiece, posTile);
+                List<BoardView.Pos> posList = new ArrayList<>();
+                posList.add(new BoardView.Pos(6, 2));
+                posList.add(new BoardView.Pos(5, 2));
+                posList.add(new BoardView.Pos(4, 2));
+                posList.add(new BoardView.Pos(4, 1));
+
+                boardView.movePiece(posList);
+                //boardView.movePiece(posPiece, posTile);
             }
         });
     }

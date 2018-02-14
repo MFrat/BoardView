@@ -3,14 +3,12 @@ package com.mfratane.boardview;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -37,6 +35,7 @@ public class BoardView extends GridLayout {
 
 
     private View lastSelectedPiece;
+    private View currentPieceSelected;
 
     /**
      * Markedtiles for the last selected piece.
@@ -58,7 +57,9 @@ public class BoardView extends GridLayout {
     /**
      * Piece's moviment anim duration.
      */
-    private int duracaoAnimMovimento = 500;
+    private int aniMovDur = 500;
+
+    private int animMovListDur = 2000;
 
     /**
      * Enables/Disables click on the board.
@@ -70,12 +71,17 @@ public class BoardView extends GridLayout {
      */
     private BoardListener boardListener;
 
+    private int dimm = -1;
+
+    private boolean alreadyCreated = false;
+
+    private List<PieceQueue> pieceQueues = new ArrayList<>();
+
 
     public BoardView(Context context) {
         super(context);
         piecesMatrix = new View[BOARD_DIMENSION][BOARD_DIMENSION];
         markedTiles = new ArrayList<>();
-        createBoard();
     }
 
 
@@ -85,8 +91,6 @@ public class BoardView extends GridLayout {
         markedTiles = new ArrayList<>();
 
         initVar(context, attrs);
-
-        createBoard();
     }
 
     public BoardView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -95,8 +99,6 @@ public class BoardView extends GridLayout {
         markedTiles = new ArrayList<>();
 
         initVar(context, attrs);
-
-        createBoard();
     }
 
 
@@ -107,8 +109,6 @@ public class BoardView extends GridLayout {
         markedTiles = new ArrayList<>();
 
         initVar(context, attrs);
-
-        createBoard();
     }
 
     @Override
@@ -119,6 +119,16 @@ public class BoardView extends GridLayout {
         super.onMeasure(
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY));
+        dimm = parentWidth;
+        if (!alreadyCreated) {
+            createBoard(parentWidth);
+
+            for (PieceQueue pieceQueue : pieceQueues){
+                setPiece(pieceQueue.getPos().getI(), pieceQueue.getPos().getJ(), pieceQueue.getImageId());
+            }
+
+            alreadyCreated = true;
+        }
     }
 
     private void initVar(Context context, AttributeSet attrs){
@@ -140,33 +150,19 @@ public class BoardView extends GridLayout {
         }
     }
 
-    protected int larguraTabuleiro() {
-        return getDisplay((Activity) getContext()).widthPixels;
-    }
-
-    private DisplayMetrics getDisplay(Activity activity){
-        DisplayMetrics metrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        return metrics;
-    }
-
     public void enableMarkedTiles(boolean bool){
         this.markedTilesEnabled = bool;
     }
 
-    protected int larguraCasa() {
-        return larguraTabuleiro() / BOARD_DIMENSION;
+    public void setDurationMovAnim(int duracaoAnimMovimento) {
+        this.aniMovDur = duracaoAnimMovimento;
     }
 
-    public void setDuracaoAnimMovimento(int duracaoAnimMovimento) {
-        this.duracaoAnimMovimento = duracaoAnimMovimento;
-    }
-
-    private void createBoard(){
+    private void createBoard(int dimm){
         this.setRowCount(BOARD_DIMENSION);
         this.setColumnCount(BOARD_DIMENSION);
 
-        setBoardBackground();
+        setBoardBackground(dimm);
     }
 
     /**
@@ -187,11 +183,11 @@ public class BoardView extends GridLayout {
     /**
      * Create board background.
      */
-    private void setBoardBackground(){
+    private void setBoardBackground(int dimm){
         //Para cada coordenada do tabuleiro, cria uma view.
         for(int i = 0; i < BOARD_DIMENSION; i++){
             for(int j = 0; j < BOARD_DIMENSION; j++){
-                View tile = createTile(chooseTileColor(i, j));
+                View tile = createTile(chooseTileColor(i, j), dimm);
                 addViewToGrid(tile, i, j);
             }
         }
@@ -203,6 +199,11 @@ public class BoardView extends GridLayout {
      * @param j position coord j.
      */
     public void setPiece(int i, int j, int imageid){
+        if (dimm == -1){
+            pieceQueues.add(new PieceQueue(new Pos(i, j), imageid));
+            return;
+        }
+
         View peca = createPiece(imageid);
 
         if(!isPosValid(i, j)){
@@ -372,7 +373,7 @@ public class BoardView extends GridLayout {
         return iterativeFadeInAnim(duration, offset);
     }
 
-    public void markTile(int i, int j, int offset){
+    private void markTile(int i, int j, int offset){
         int pos = (i * BOARD_DIMENSION) + j;
         FrameLayout view = (FrameLayout) this.getChildAt(pos);
         View image = view.getChildAt(1);
@@ -402,16 +403,18 @@ public class BoardView extends GridLayout {
     }
 
 
-    private FrameLayout createTile(Drawable imageId){
-        int tamanho = larguraCasa();
+    private FrameLayout createTile(Drawable imageId,  int dimm){
+        int size = dimm / BOARD_DIMENSION;
 
         FrameLayout frameLayout = new FrameLayout(getContext());
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(tamanho, tamanho);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(size, size);
 
         ImageView piece = new ImageView(getContext());
         piece.setLayoutParams(params);
-        piece.setBackground(imageId);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            piece.setBackground(imageId);
+        }
         piece.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         FrameLayout marked = new FrameLayout(getContext());
@@ -430,11 +433,11 @@ public class BoardView extends GridLayout {
 
 
     private LinearLayout createPiece(int imageId){
-        int tamanho = larguraCasa();
+        int size = dimm / BOARD_DIMENSION;
 
         LinearLayout frameLayout = new LinearLayout(getContext());
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(tamanho, tamanho, Gravity.CENTER);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size, Gravity.CENTER);
 
         ImageView piece = new ImageView(getContext());
         int padding = (int) pxFromDp(getContext(), 5);
@@ -471,13 +474,16 @@ public class BoardView extends GridLayout {
                     return;
                 }
 
-                lastSelectedPiece = v;
-
                 unmarkAllTiles();
 
+                boolean isSameLast = v.equals(lastSelectedPiece);
+
+                currentPieceSelected = isSameLast && currentPieceSelected != null? null : v;
+
+                lastSelectedPiece = v;
                 if(boardListener != null){
                     Pos pos = getPiecePos(v);
-                    boardListener.onClickPiece(pos);
+                    boardListener.onClickPiece(pos, isSameLast && currentPieceSelected == null);
                 }
             }
         };
@@ -519,6 +525,28 @@ public class BoardView extends GridLayout {
         pieceMovAnim(view, casa);
     }
 
+    public void movePiece(List<Pos> positions){
+        View piece = getPiece(positions.get(0));
+
+        int eachAnimDur = animMovListDur / positions.size();
+
+        for (int i = 1; i < positions.size(); i++){
+            Pos pos = positions.get(i);
+            View tile = getTile(pos);
+
+            float finalX = tile.getX();
+            float finalY = tile.getY();
+
+            ObjectAnimator animX = ObjectAnimator.ofFloat(piece, "x", finalX);
+            ObjectAnimator animY = ObjectAnimator.ofFloat(piece, "y", finalY);
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.playTogether(animX, animY);
+            animatorSet.setDuration(eachAnimDur);
+            animatorSet.setStartDelay(eachAnimDur * i);
+            animatorSet.start();
+        }
+    }
+
     private void pieceMovAnim(View piece, View tile){
         float finalX = tile.getX();
         float finalY = tile.getY();
@@ -527,7 +555,7 @@ public class BoardView extends GridLayout {
         ObjectAnimator animY = ObjectAnimator.ofFloat(piece, "y", finalY);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(animX, animY);
-        animatorSet.setDuration(duracaoAnimMovimento);
+        animatorSet.setDuration(aniMovDur);
         animatorSet.start();
     }
 
@@ -588,8 +616,34 @@ public class BoardView extends GridLayout {
     }
 
     public interface BoardListener {
-        void onClickPiece(Pos pos);
+        void onClickPiece(Pos pos, boolean isSameLast);
         void onClickTile(Pos posPiece, Pos posTile);
+    }
+
+    private class PieceQueue{
+        private Pos pos;
+        private int imageId;
+
+        public PieceQueue(Pos pos, int imageId) {
+            this.pos = pos;
+            this.imageId = imageId;
+        }
+
+        public Pos getPos() {
+            return pos;
+        }
+
+        public void setPos(Pos pos) {
+            this.pos = pos;
+        }
+
+        public int getImageId() {
+            return imageId;
+        }
+
+        public void setImageId(int imageId) {
+            this.imageId = imageId;
+        }
     }
 
 
